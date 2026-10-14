@@ -1,0 +1,931 @@
+<meta charset="utf-8">
+<title>Arnav Nehra</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;800;900&family=Familjen+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: electric-blue poster. A live 3D spine you can make slouch sits on top of a giant name;
+   then a tilting photo print, a spinning skill drum, and loud tilt-cards for each project. Single committed look. */
+:root {
+  --blue: #1f2bff;
+  --blue-deep: #1520c9;
+  --white: #fbfaf7;
+  --bone: #f2ede4;
+  --coral: #ff5b36;
+  --black: #0b0b14;
+  --display: "Unbounded", "Arial Black", Impact, sans-serif;
+  --body: "Familjen Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--blue); color: var(--white);
+  font: 400 1.05rem/1.55 var(--body);
+  overflow-x: hidden;
+}
+.gutter { padding-inline: clamp(16px, 4vw, 48px); }
+a { color: inherit; }
+a:focus-visible, button:focus-visible { outline: 3px solid var(--coral); outline-offset: 4px; }
+h1, h2, h3 { margin: 0; font-family: var(--display); text-wrap: balance; }
+p { margin: 0; }
+.mono { font: 600 .74rem/1.4 var(--mono); letter-spacing: .1em; text-transform: uppercase; }
+
+/* Top bar */
+.top {
+  position: fixed; inset: 0 0 auto 0; z-index: 20;
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  padding-top: calc(16px + env(safe-area-inset-top, 0px)); padding-bottom: 16px;
+  mix-blend-mode: difference; color: var(--white);
+}
+.top a { text-decoration: none; }
+.top .mark { font: 800 1rem var(--display); letter-spacing: -.02em; }
+.top nav { display: flex; gap: clamp(12px, 3vw, 28px); }
+.top nav a { font: 600 .78rem var(--mono); text-transform: uppercase; letter-spacing: .08em; }
+.top nav a:hover { text-decoration: underline; text-underline-offset: 4px; }
+
+/* Hero */
+/* Hero (from the sketch):
+   row 1  wide, letter-spaced name · spine just after it · big photo on the right
+   row 2  tagline spread wide       ·                     · photo continues
+   row 3  wide posture card         · about text + facts spread across to the right edge */
+.hero { position: relative; padding-block: clamp(110px, 13vh, 150px) clamp(56px, 8vw, 96px); overflow: hidden; }
+.hero-grid {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, .85fr);
+  grid-template-areas: "name name photo" "tag tag photo" "post about about";
+  gap: clamp(24px, 3vw, 44px) clamp(28px, 4vw, 64px); align-items: start;
+}
+.name-block { display: contents; }
+.name-wrap { grid-area: name; }
+.tagline { grid-area: tag; }
+.readout { grid-area: post; }
+.about-copy { grid-area: about; }
+.print-stage { grid-area: photo; align-self: center; }
+/* The spine reaches above the name, so reserve that room (minus the hero's top padding) */
+.hero { --name-fs: clamp(3.2rem, 7.6vw, 8.4rem); }
+/* JS sizes --name-fs so the longer line of the name fills the space up to the photo */
+.name-wrap { position: relative; margin-top: max(0px, calc(var(--name-fs) * 1.3 - 70px)); }
+.hero h1 {
+  font-weight: 900; font-size: var(--name-fs); line-height: .9; letter-spacing: .06em;
+  text-transform: uppercase; position: relative; z-index: 1; user-select: none;
+}
+.hero h1 .row2, .hero h1 span { display: block; padding-left: .6em; }
+/* Spine stands behind the name, around the V/R, rising above it and dropping a little below (where Arnav placed it) */
+.spine-box { position: absolute; left: 50%; width: 44%; top: -92%; height: 206%; z-index: 0; pointer-events: none; }
+#spine { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.tagline { position: relative; z-index: 1; max-width: 46ch; font-size: clamp(1.2rem, 1.75vw, 1.55rem); line-height: 1.45; font-weight: 500; }
+.readout {
+  position: relative; z-index: 1; justify-self: start; width: min(100%, 320px);
+  background: var(--black); color: var(--white); border-radius: 18px; padding: 22px 24px; display: grid; gap: 8px;
+  font-family: var(--mono); box-shadow: 8px 8px 0 var(--coral);
+}
+.readout .score { font: 800 3rem/1 var(--display); font-variant-numeric: tabular-nums; }
+.readout .bar { height: 6px; background: #2a2a3a; border-radius: 3px; overflow: hidden; }
+.readout .bar i { display: block; height: 100%; width: 80%; background: var(--coral); transition: width .2s; }
+.readout small { font-size: .7rem; opacity: .7; }
+.readout .hint { opacity: .5; }
+
+/* Section shell */
+section { padding-block: clamp(72px, 10vw, 140px); }
+.sec-title { display: flex; align-items: baseline; gap: 18px; margin-bottom: clamp(32px, 5vw, 56px); flex-wrap: wrap; }
+.sec-title h2 { font-size: clamp(2.4rem, 8vw, 6rem); font-weight: 900; letter-spacing: -.04em; line-height: .9; text-transform: uppercase; }
+
+/* About (inside the hero) */
+.print-stage { perspective: 1100px; display: grid; place-items: center; padding-block: 24px; }
+.print {
+  position: relative; width: min(100%, 410px); aspect-ratio: 4 / 5; transform-style: preserve-3d;
+  transition: transform .15s ease-out; will-change: transform;
+}
+.print .card {
+  position: absolute; inset: 0; background: var(--white); border-radius: 22px; overflow: hidden;
+  box-shadow: 0 40px 80px -30px rgba(0,0,0,.6);
+}
+.print img {
+  width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; display: block;
+}
+.print .sticker {
+  position: absolute; font: 800 .82rem/1.15 var(--display); text-transform: uppercase; padding: 10px 14px; border-radius: 10px;
+  transform-style: preserve-3d;
+}
+.print .s1 { left: -18px; top: 26px; background: var(--white); color: var(--blue); transform: translateZ(70px) rotate(-6deg); }
+.print .s2 { right: -16px; bottom: 70px; background: var(--black); color: var(--white); transform: translateZ(110px) rotate(5deg); }
+.print .s3 { left: 24px; bottom: -18px; background: var(--blue); color: var(--white); border: 2px solid var(--white); transform: translateZ(50px) rotate(-3deg); }
+.print .frame { position: absolute; inset: -14px; border: 2px solid var(--white); border-radius: 30px; transform: translateZ(-60px); }
+
+.about-copy { display: grid; gap: 18px; min-width: 0; }
+.about-copy .big { font: 500 clamp(1.2rem, 1.9vw, 1.75rem)/1.25 var(--display); letter-spacing: -.02em; }
+.about-copy .big em { font-style: normal; color: var(--blue); background: var(--white); padding: 0 .2em; border-radius: 6px; }
+.about-copy p { max-width: 68ch; font-size: 1rem; }
+.facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(16px, 3vw, 48px); margin-top: 8px; }
+.facts div { border-top: 2px solid var(--white); padding-top: 10px; display: grid; gap: 2px; }
+.facts b { font: 800 clamp(1.3rem, 3vw, 2rem)/1 var(--display); font-variant-numeric: tabular-nums; }
+
+/* Skills: drum + resume card */
+.skills { padding-top: 0; }
+.drum-wrap { perspective: 1400px; height: 180px; display: grid; place-items: center; overflow: hidden; }
+/* JS sets the radius from the real word widths and pushes the drum back by it, so the front face sits at z=0 */
+.drum { position: relative; width: 1px; height: 56px; transform-style: preserve-3d; }
+.drum-spin { position: absolute; inset: 0; transform-style: preserve-3d; animation: spin 32s linear infinite; }
+.drum span {
+  position: absolute; left: 0; top: 0; white-space: nowrap;
+  font: 900 clamp(1.15rem, 2.4vw, 2rem)/56px var(--display); text-transform: uppercase; letter-spacing: -.02em;
+  backface-visibility: hidden;
+}
+.resume {
+  margin-top: clamp(40px, 6vw, 72px); background: var(--black); color: var(--white); border-radius: 22px;
+  padding: clamp(22px, 3vw, 32px); display: flex; align-items: center; justify-content: space-between; gap: 20px 32px; flex-wrap: wrap;
+  box-shadow: 10px 10px 0 var(--coral);
+}
+.resume .doc { display: flex; align-items: center; gap: 18px; min-width: 0; }
+.resume .sheet {
+  width: 52px; height: 66px; flex: none; border-radius: 6px; background: var(--white); position: relative;
+  background-image: linear-gradient(var(--black) 2px, transparent 2px); background-size: 70% 9px; background-position: 50% 14px; background-repeat: repeat-y;
+}
+.resume .sheet::after { content: "PDF"; position: absolute; right: -8px; bottom: -6px; background: var(--coral); color: var(--black); font: 800 .6rem var(--display); padding: 3px 5px; border-radius: 4px; }
+.resume h3 { font-size: clamp(1.2rem, 2.2vw, 1.6rem); font-weight: 800; }
+.resume p { opacity: .7; font-size: .92rem; }
+.resume .msg { flex-basis: 100%; font-size: .85rem; color: var(--coral); }
+.drum span:nth-child(3n+2) { color: var(--coral); }
+.drum span:nth-child(3n) { color: transparent; -webkit-text-stroke: 1.5px var(--white); }
+@keyframes spin { to { transform: rotateY(-360deg); } }
+
+/* Projects */
+.work { background: var(--bone); color: var(--black); }
+.work .sec-title h2 { color: var(--blue); }
+.cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(20px, 3vw, 36px); }
+.tilt { perspective: 1200px; }
+.pcard {
+  position: relative; border-radius: 26px; padding: clamp(24px, 3vw, 40px); min-height: 100%;
+  display: grid; gap: 18px; align-content: start; transform-style: preserve-3d; transition: transform .12s ease-out;
+  border: 2px solid var(--black); box-shadow: 10px 10px 0 var(--black);
+}
+.pcard > * { transform: translateZ(36px); }
+.pcard .tagrow { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.pcard h3 { font-size: clamp(1.8rem, 3.6vw, 3rem); font-weight: 900; letter-spacing: -.035em; line-height: .95; text-transform: uppercase; transform: translateZ(70px); }
+.pcard .sub { font-weight: 600; font-size: 1.1rem; }
+.pcard ul { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; }
+.pcard .stack { font: 400 .8rem/1.6 var(--mono); opacity: .85; }
+.pcard .links { display: flex; gap: 10px; flex-wrap: wrap; transform: translateZ(60px); }
+.pill {
+  display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 999px; text-decoration: none;
+  font: 600 .86rem var(--body); border: 2px solid currentColor;
+}
+.pill:hover { background: currentColor; }
+.pill:hover span { filter: invert(1); }
+.c-blue { background: var(--blue); color: var(--white); }
+.c-coral { background: var(--coral); color: var(--black); }
+.c-black { background: var(--black); color: var(--white); border-color: var(--black); box-shadow: 10px 10px 0 var(--coral); }
+.c-white { background: var(--white); color: var(--black); }
+.c-blue .pill:hover { color: var(--white); }
+.pcard .glare { position: absolute; inset: 0; border-radius: inherit; pointer-events: none; transform: none;
+  background: radial-gradient(circle at var(--gx, 50%) var(--gy, 0%), rgba(255,255,255,.28), transparent 45%); opacity: 0; transition: opacity .2s; }
+.pcard:hover .glare { opacity: 1; }
+
+/* Experience */
+.xp { background: var(--black); }
+.xp .sec-title h2 { color: var(--coral); }
+.jobs { display: grid; gap: 0; border-top: 2px solid #2a2a3a; }
+.job { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); gap: 16px 48px; padding-block: 36px; border-bottom: 2px solid #2a2a3a; }
+.job h3 { font-size: clamp(1.3rem, 2.6vw, 2rem); font-weight: 800; letter-spacing: -.02em; line-height: 1.05; }
+.job .where { color: var(--coral); margin-top: 8px; display: block; }
+.job ul { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; max-width: 62ch; }
+.job .award { margin-top: 12px; display: inline-block; background: var(--coral); color: var(--black); padding: 6px 12px; border-radius: 8px; font-weight: 600; }
+.edu { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; margin-top: 56px; }
+.edu div { border: 2px solid #2a2a3a; border-radius: 18px; padding: 22px; display: grid; gap: 6px; }
+.edu b { font: 800 1.2rem var(--display); }
+.edu .num { font: 900 2.2rem/1 var(--display); color: var(--coral); font-variant-numeric: tabular-nums; }
+
+/* Contact */
+.contact { text-align: left; }
+.contact .mono { opacity: .8; }
+.email {
+  display: block; font: 800 clamp(1.3rem, 3.4vw, 2.8rem)/1.1 var(--display); letter-spacing: -.03em; margin-block: 16px 28px;
+  word-break: break-all; user-select: all; text-decoration: none;
+}
+.contact .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 14px; max-width: 900px; }
+.btn {
+  font: 700 1rem var(--body); padding: 14px 22px; border-radius: 999px; border: 2px solid var(--white); background: transparent; color: var(--white);
+  cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+}
+.contact .btn { font: 800 clamp(1.05rem, 1.6vw, 1.3rem) var(--display); padding: 24px 28px; border-radius: 18px; text-transform: uppercase; letter-spacing: -.01em; }
+.btn.solid { background: var(--white); color: var(--blue); }
+.btn:hover { background: var(--coral); border-color: var(--coral); color: var(--black); }
+.cta {
+  margin-top: clamp(64px, 9vw, 120px); font: 900 clamp(2rem, 5.6vw, 5rem)/.98 var(--display); letter-spacing: -.04em; text-transform: uppercase;
+  max-width: 16ch;
+}
+.cta span { color: var(--coral); }
+.contact .cta-btn { margin-top: 32px; background: var(--coral); border-color: var(--coral); color: var(--black); padding: 22px 40px; }
+.contact .cta-btn:hover { background: var(--white); border-color: var(--white); color: var(--blue); }
+footer { padding-block: 28px 40px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; border-top: 2px solid rgba(255,255,255,.25); }
+
+@media (max-width: 1100px) {
+  .hero-grid { grid-template-columns: minmax(0, 1.2fr) minmax(0, .8fr); grid-template-areas: "name name" "tag photo" "post photo" "about about"; }
+  .hero { --name-fs: clamp(2.6rem, 10vw, 7rem); }
+}
+@media (max-width: 680px) {
+  .hero-grid { grid-template-columns: minmax(0, 1fr); grid-template-areas: "name" "tag" "post" "about" "photo"; }
+  .hero { --name-fs: clamp(2.2rem, 11vw, 4rem); }
+  .hero h1 { letter-spacing: .03em; }
+}
+@media (max-width: 860px) {
+  .cards, .job, .edu { grid-template-columns: minmax(0, 1fr); }
+}
+/* ---------- Owner-only edit mode ---------- */
+.edits-pending main { visibility: hidden; }
+.edit-toggle, .edit-bar button {
+  font: 600 .8rem var(--mono); text-transform: uppercase; letter-spacing: .06em; cursor: pointer;
+  border-radius: 999px; padding: 10px 16px; border: 2px solid var(--white); background: var(--black); color: var(--white);
+}
+.edit-toggle { position: fixed; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 60; box-shadow: 4px 4px 0 var(--coral); }
+.edit-bar {
+  position: fixed; left: 50%; translate: -50% 0; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 60;
+  width: max-content; max-width: calc(100vw - 32px);
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; padding: 10px 12px 10px 16px; border-radius: 16px;
+  background: var(--black); color: var(--white); box-shadow: 6px 6px 0 var(--coral); font: 400 .75rem/1.4 var(--mono);
+}
+.edit-bar #edit-note { max-width: 46ch; opacity: .85; }
+.edit-bar button.primary { background: var(--coral); border-color: var(--coral); color: var(--black); }
+.edit-bar button:hover { border-color: var(--coral); }
+.edit-frames { position: fixed; inset: 0; pointer-events: none; z-index: 55; }
+.edit-frame { position: absolute; border: 2px dashed var(--coral); border-radius: 8px; }
+.edit-frame .tag { position: absolute; left: 18px; top: -24px; font: 600 .66rem var(--mono); text-transform: uppercase; background: var(--coral); color: var(--black); padding: 3px 7px; border-radius: 5px; white-space: nowrap; }
+.edit-frame .grip, .edit-frame .size {
+  position: absolute; width: 28px; height: 28px; border-radius: 8px; background: var(--coral); color: var(--black);
+  display: grid; place-items: center; font: 700 15px/1 var(--body); pointer-events: auto; touch-action: none; user-select: none;
+  box-shadow: 0 2px 8px rgba(0,0,0,.35);
+}
+.edit-frame .grip { left: -14px; top: -14px; cursor: move; }
+.edit-frame .size { right: -14px; bottom: -14px; cursor: nwse-resize; }
+body.editing [data-t][contenteditable] { outline: 1px dashed var(--coral); outline-offset: 3px; cursor: text; }
+body.editing [data-t][contenteditable]:focus { outline: 2px solid var(--coral); }
+body.editing .drum-spin { animation-play-state: paused; }
+.edit-toast {
+  position: fixed; left: 50%; translate: -50% 0; top: calc(72px + env(safe-area-inset-top, 0px)); z-index: 61;
+  background: var(--white); color: var(--black); font: 600 .85rem var(--body); padding: 10px 16px; border-radius: 999px; box-shadow: 4px 4px 0 var(--coral);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drum-spin { animation: none; }
+  .print, .pcard { transition: none; }
+  html { scroll-behavior: auto; }
+}
+</style>
+<!-- Layout tweaks saved from edit mode (desktop layout only); filled from edits.json -->
+<style id="edit-layout"></style>
+<script type="application/json" id="edits-baked">{"v":1,"text":{},"layout":{"name":{"x":1,"y":-150,"s":1},"about":{"x":-1,"y":-77,"s":1},"tagline":{"x":0,"y":-30,"s":1},"skills-title":{"x":-1,"y":-41,"s":1}}}</script>
+<script>
+  // Hold the page for a moment while saved edits load, so old text never flashes
+  document.documentElement.classList.add('edits-pending');
+  setTimeout(function () { document.documentElement.classList.remove('edits-pending'); }, 1200);
+</script>
+
+<header class="top gutter">
+  <a class="mark" href="#top">AN.</a>
+  <nav aria-label="Main">
+    <a href="#about">About</a>
+    <a href="#skills">Skills</a>
+    <a href="#work">Work</a>
+    <a href="#xp">Experience</a>
+    <a href="#contact">Contact</a>
+  </nav>
+</header>
+
+<main id="top">
+  <section class="hero gutter" id="about" aria-label="Intro and about">
+    <div class="hero-grid">
+      <div class="name-block">
+        <div class="name-wrap">
+          <h1 data-edit="name" data-label="Name" data-t="t001">Arnav<span class="row2">Nehra</span></h1>
+          <div class="spine-box"><canvas id="spine" data-edit="spine" data-label="Spine" aria-hidden="true"></canvas></div>
+        </div>
+        <p class="tagline" data-edit="tagline" data-label="Tagline" data-t="t002">Developer building health tech and AI tools. B.Tech CSE (Health Informatics) at VIT Bhopal, class of 2027.</p>
+        <div class="readout" data-edit="posture" data-label="Posture score" aria-live="off">
+          <span class="mono" data-t="t003">Posture score</span>
+          <span class="score" id="score">80%</span>
+          <span class="bar"><i id="bar"></i></span>
+          <small id="verdict">Good posture</small>
+          <small class="hint" id="hint">Move your cursor down to slouch, up to sit straight</small>
+        </div>
+      </div>
+      <div class="about-copy" data-edit="about" data-label="About">
+        <h2 class="mono" data-t="t004">About</h2>
+        <p class="big" data-t="t005">I write software that looks after people: <em>appointments</em>, <em>posture</em> and the paperwork in between.</p>
+        <p data-t="t006">I'm a computer science student specialising in health informatics. I like shipping complete things: a deployed healthcare platform, a Mac app people can download, a RAG tool that cites its sources. Off the keyboard I've led operations for a 5+ team student community and done DevOps/MLOps work as an intern.</p>
+        <div class="facts">
+          <div><b data-t="t007">8.32</b><span class="mono" data-t="t008">CGPA</span></div>
+          <div><b data-t="t009">4</b><span class="mono" data-t="t010">Shipped builds</span></div>
+          <div><b data-t="t011">2027</b><span class="mono" data-t="t012">Graduating</span></div>
+        </div>
+      </div>
+      <div class="print-stage" data-edit="photo" data-label="Photo">
+        <div class="print" id="print">
+          <div class="frame"></div>
+          <div class="card">
+            <img src="photo.jpg" alt="Portrait of Arnav Nehra">          </div>
+          <span class="sticker s1" data-t="t013">Computer<br>Science</span>
+          <span class="sticker s2" data-t="t014">VIT Bhopal<br>'27</span>
+          <span class="sticker s3" data-t="t015">Modinagar, IN</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="skills" class="skills gutter" aria-labelledby="skills-h">
+    <div class="sec-title"><h2 id="skills-h" data-edit="skills-title" data-label="Skills title" data-t="t016">Skills</h2></div>
+    <div class="drum-wrap" data-edit="skills-ring" data-label="Skills ring" aria-label="Skills: Python, React, Node.js, SQL, C++, JavaScript, LangChain, MediaPipe, PostgreSQL, Tableau, Gemini API, Express, Pandas, FAISS">
+      <div class="drum" aria-hidden="true"><div class="drum-spin" id="drum">
+        <span data-t="t017">Python</span><span data-t="t018">React</span><span data-t="t019">Node.js</span><span data-t="t020">SQL</span><span data-t="t021">C++</span><span data-t="t022">JavaScript</span><span data-t="t023">LangChain</span>
+        <span data-t="t024">MediaPipe</span><span data-t="t025">PostgreSQL</span><span data-t="t026">Tableau</span><span data-t="t027">Gemini API</span><span data-t="t028">Express</span><span data-t="t029">Pandas</span><span data-t="t030">FAISS</span>
+      </div></div>
+    </div>
+    <div class="resume" data-edit="resume" data-label="Resume card">
+      <div class="doc">
+        <span class="sheet" aria-hidden="true"></span>
+        <div><h3 data-t="t031">My resume</h3><p data-t="t032">Education, internships, projects and skills in one PDF.</p></div>
+      </div>
+      <a class="btn solid" id="resume-btn" href="Arnav_Nehra_Resume.pdf" target="_blank" rel="noopener" data-t="t033">Download resume ↓</a>
+      <p class="msg" id="resume-msg" hidden></p>
+    </div>
+  </section>
+
+  <section id="work" class="work gutter" aria-labelledby="work-h">
+    <div class="sec-title"><h2 id="work-h" data-edit="work-title" data-label="Work title" data-t="t035">Selected work</h2><span class="mono" data-t="t036">Hover a card</span></div>
+    <div class="cards">
+
+      <div class="tilt"><article class="pcard c-blue">
+        <div class="glare"></div>
+        <div class="tagrow"><span class="mono" data-t="t037">Full-stack · AI</span><span class="mono" data-t="t038">Aug 2026</span></div>
+        <h3 data-t="t039">PulseCare</h3>
+        <p class="sub" data-t="t040">A healthcare platform for booking, triage and follow-up care.</p>
+        <ul>
+          <li data-t="t041">Patient, doctor and admin flows with slot management and prescriptions.</li>
+          <li data-t="t042">Gemini-powered symptom triage and post-visit summaries; medication reminders and Google Calendar sync.</li>
+          <li data-t="t043">Blocks double-booking and auto-reschedules around doctor leave.</li>
+        </ul>
+        <p class="stack" data-t="t044">React · Node.js · Express · SQLite · Gemini · Vercel · Render</p>
+        <div class="links"><a class="pill" href="https://github.com/nehra3103/Pulse-Care"><span data-t="t045">Source ↗</span></a></div>
+      </article></div>
+
+      <div class="tilt"><article class="pcard c-coral">
+        <div class="glare"></div>
+        <div class="tagrow"><span class="mono" data-t="t046">macOS · Computer vision</span><span class="mono" data-t="t047">v1.0</span></div>
+        <h3 data-t="t048">Posture Guard</h3>
+        <p class="sub" data-t="t049">A menu bar app that catches you slouching. (The spine up top is a tribute.)</p>
+        <ul>
+          <li data-t="t050">MediaPipe Pose tracks ears and shoulders against your own calibrated baseline.</li>
+          <li data-t="t051">Flags tech neck, leaning in, rounded shoulders and side slumps, then nudges you with a notification.</li>
+          <li data-t="t052">Stretch breaks, blink and screen-distance tracking, 14-day report. Fully on-device.</li>
+        </ul>
+        <p class="stack" data-t="t053">Python · MediaPipe · OpenCV · rumps · PyObjC</p>
+        <div class="links">
+          <a class="pill" href="https://github.com/nehra3103/posture-guard/releases/tag/v1.0.0"><span data-t="t054">Download for Mac ↗</span></a>
+          <a class="pill" href="https://github.com/nehra3103/posture-guard"><span data-t="t055">Source ↗</span></a>
+        </div>
+      </article></div>
+
+      <div class="tilt"><article class="pcard c-black">
+        <div class="glare"></div>
+        <div class="tagrow"><span class="mono" data-t="t056">LLM · RAG</span><span class="mono" data-t="t057">Web app</span></div>
+        <h3 data-t="t058">IntelliDocs AI</h3>
+        <p class="sub" data-t="t059">Chat with a stack of PDFs and see exactly where each answer came from.</p>
+        <ul>
+          <li data-t="t060">Multi-PDF upload with streamed answers in a chat interface.</li>
+          <li data-t="t061">Every answer cites file, page and excerpt.</li>
+          <li data-t="t062">FAISS vector search with Gemini embeddings, orchestrated in LangChain.</li>
+        </ul>
+        <p class="stack" data-t="t063">Python · LangChain · FAISS · Gemini · Streamlit</p>
+        <div class="links"><a class="pill" href="https://github.com/nehra3103/IntelliDocs-AI"><span data-t="t064">Source ↗</span></a></div>
+      </article></div>
+
+      <div class="tilt"><article class="pcard c-white">
+        <div class="glare"></div>
+        <div class="tagrow"><span class="mono" data-t="t065">Data · Analytics</span><span class="mono" data-t="t066">Sept 2026</span></div>
+        <h3 data-t="t067">Dusala Growth Intelligence</h3>
+        <p class="sub" data-t="t068">Turns a messy B2B lead list into a ranked outreach plan.</p>
+        <ul>
+          <li data-t="t069">Lead Priority Score from role relevance, connection level, premium status and company experience.</li>
+          <li data-t="t070">SQL analysis of company concentration and geography.</li>
+          <li data-t="t071">Tableau dashboard with KPI cards and a ranked lead table.</li>
+        </ul>
+        <p class="stack" data-t="t072">Python · Pandas · PostgreSQL · SQL · Tableau</p>
+        <div class="links"><a class="pill" href="https://github.com/nehra3103/growth-intelligence"><span data-t="t073">Source ↗</span></a></div>
+      </article></div>
+
+    </div>
+  </section>
+
+  <section id="xp" class="xp gutter" aria-labelledby="xp-h">
+    <div class="sec-title"><h2 id="xp-h" data-edit="xp-title" data-label="Experience title" data-t="t074">Experience</h2></div>
+    <div class="jobs">
+      <article class="job">
+        <div>
+          <span class="mono" data-t="t075">Nov 2025 – Jan 2026 · Remote</span>
+          <h3 style="margin-top:10px" data-t="t076">DevOps / MLOps Intern</h3>
+          <span class="where" data-t="t077">Planet Celluloid Pvt. Ltd.</span>
+        </div>
+        <div>
+          <ul>
+            <li data-t="t078">Helped shape early DevOps and MLOps workflows: CI/CD pipelines, deployment lifecycles, automation.</li>
+            <li data-t="t079">Gathered and documented requirements and deployment workflows with cross-functional stakeholders.</li>
+            <li data-t="t080">Built a basic authentication module using containerization and cloud deployment concepts.</li>
+          </ul>
+          <span class="award" data-t="t081">Received a Letter of Recommendation</span>
+        </div>
+      </article>
+      <article class="job">
+        <div>
+          <span class="mono" data-t="t082">Feb 2024 – Oct 2025 · VIT Bhopal</span>
+          <h3 style="margin-top:10px" data-t="t083">General Secretary, Operations Lead</h3>
+          <span class="where" data-t="t084">Notion Community</span>
+        </div>
+        <div>
+          <ul>
+            <li data-t="t085">Coordinated 5+ teams and owned a large on-campus community initiative end to end.</li>
+            <li data-t="t086">Ran budgets, vendors, payments and procurement.</li>
+            <li data-t="t087">Handled branding, content and logistics, and secured approvals and venues with university authorities.</li>
+          </ul>
+        </div>
+      </article>
+    </div>
+    <div class="edu">
+      <div><span class="mono" data-t="t088">2023 – 2027</span><b data-t="t089">VIT Bhopal University</b><span data-t="t090">B.Tech CSE (Health Informatics)</span><span class="num" data-t="t091">8.32</span><span class="mono" data-t="t092">CGPA</span></div>
+      <div><span class="mono" data-t="t093">2018 – 2023</span><b data-t="t094">Delhi Public School, Ghaziabad</b><span data-t="t095">Class XII, CBSE</span><span class="num" data-t="t096">88%</span><span class="mono" data-t="t097">Score</span></div>
+    </div>
+  </section>
+
+  <section id="contact" class="contact gutter" aria-labelledby="contact-h">
+    <h2 id="contact-h" class="mono" data-t="t098">Open to internships in software, AI and health tech</h2>
+    <span class="email" id="email" data-edit="email" data-label="Email" data-t="t099">arnavn40@gmail.com</span>
+    <div class="row" data-edit="contact-buttons" data-label="Contact buttons">
+      <button class="btn solid" id="copy-email" type="button">Copy email</button>
+      <a class="btn" href="https://www.linkedin.com/in/arnav-nehra-3103d" data-t="t100">LinkedIn ↗</a>
+      <a class="btn" href="https://github.com/nehra3103" data-t="t101">GitHub ↗</a>
+    </div>
+    <p class="cta" data-edit="cta" data-label="Tagline (CTA)" data-t="t102">Hiring an intern who ships? <span data-t="t103">Let's make it official.</span></p>
+    <a class="btn solid cta-btn" id="cta-btn" data-edit="email-button" data-label="Email button" href="mailto:arnavn40@gmail.com?subject=Internship%20opportunity" data-t="t104">Email me ↗</a>
+  </section>
+
+  <footer class="gutter mono"><span data-t="t105">© 2026 Arnav Nehra</span><span data-t="t106">Built with Three.js</span></footer>
+</main>
+
+<div class="edit-ui">
+  <button class="edit-toggle" id="edit-toggle" type="button" hidden>✎ Edit page</button>
+  <div class="edit-bar" id="edit-bar" hidden>
+    <span id="edit-note">Drag ✥ to move · drag ◢ to resize · click any text to retype it</span>
+    <button type="button" id="edit-reset">Reset layout</button>
+    <button type="button" id="edit-cancel">Cancel</button>
+    <button type="button" id="edit-save" class="primary">Save</button>
+  </div>
+  <div class="edit-frames" id="edit-frames"></div>
+  <div class="edit-toast" id="edit-toast" role="status" hidden></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function () {
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var finePointer = window.matchMedia('(pointer: fine)').matches;
+
+  /* ---------- 3D spine ---------- */
+  var canvas = document.getElementById('spine');
+  var scoreEl = document.getElementById('score'), barEl = document.getElementById('bar'), verdictEl = document.getElementById('verdict');
+  var slouch = 0.2, slouchTarget = 0.2, yaw = 0, yawTarget = 0;
+
+  function setReadout(s) {
+    var pct = Math.round((1 - s) * 100);
+    scoreEl.textContent = pct + '%';
+    barEl.style.width = pct + '%';
+    verdictEl.textContent = pct >= 80 ? 'Good posture' : pct >= 50 ? 'Slouching a bit' : 'Tech neck detected';
+  }
+
+  try {
+    if (!window.THREE) throw new Error('no three');
+    var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    var scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(36, 1, 0.1, 100);
+    camera.position.set(0, 0, 17);
+
+    scene.add(new THREE.AmbientLight(0xffffff, 0.45));
+    var key = new THREE.DirectionalLight(0xffffff, 1.1); key.position.set(4, 6, 8); scene.add(key);
+    var rim = new THREE.PointLight(0xff5b36, 2.2, 30); rim.position.set(-6, 2, -4); scene.add(rim);
+    var fill = new THREE.PointLight(0x6f7bff, 1.2, 30); fill.position.set(6, -4, 3); scene.add(fill);
+
+    var boneMat = new THREE.MeshStandardMaterial({ color: 0xf2ede4, roughness: 0.35, metalness: 0.08 });
+    var discMat = new THREE.MeshStandardMaterial({ color: 0xff5b36, roughness: 0.45, emissive: 0x3a0a00 });
+    var wireMat = new THREE.MeshBasicMaterial({ color: 0xfbfaf7, wireframe: true, transparent: true, opacity: 0.55 });
+
+    var N = 22, SP = 0.5, verts = [];
+    var spine = new THREE.Group(); scene.add(spine);
+    for (var i = 0; i < N; i++) {
+      var t = i / (N - 1), s = 0.78 - t * 0.38;
+      var g = new THREE.Group();
+      var body = new THREE.Mesh(new THREE.CylinderGeometry(s * 0.6, s * 0.64, 0.34, 28), boneMat);
+      var disc = new THREE.Mesh(new THREE.CylinderGeometry(s * 0.56, s * 0.56, 0.12, 28), discMat); disc.position.y = 0.24;
+      var arch = new THREE.Mesh(new THREE.TorusGeometry(s * 0.3, 0.075, 10, 24), boneMat); arch.rotation.x = Math.PI / 2; arch.position.x = -s * 0.78;
+      var spinous = new THREE.Mesh(new THREE.BoxGeometry(s * 1.0, 0.16, 0.14), boneMat); spinous.position.x = -s * 1.45; spinous.rotation.z = 0.45;
+      var trans = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.12, s * 1.9), boneMat); trans.position.x = -s * 0.75;
+      g.add(body, disc, arch, spinous, trans);
+      spine.add(g); verts.push(g);
+    }
+    var skull = new THREE.Group();
+    var cranium = new THREE.Mesh(new THREE.IcosahedronGeometry(1.35, 1), wireMat);
+    var core = new THREE.Mesh(new THREE.IcosahedronGeometry(0.55, 0), discMat);
+    skull.add(cranium, core); spine.add(skull);
+
+    // Pelvis ring at the base
+    var pelvis = new THREE.Mesh(new THREE.TorusGeometry(1.25, 0.16, 14, 48), boneMat);
+    pelvis.rotation.x = Math.PI / 2; spine.add(pelvis);
+
+    function layout(sl) {
+      var x = 0, y = 0;
+      for (var i = 0; i < N; i++) {
+        var t = i / (N - 1);
+        // natural S-curve (lordosis / kyphosis / cervical) plus slouch, which bends the upper spine forward
+        var th = -0.22 * Math.cos(t * Math.PI * 2.1) + sl * 1.5 * Math.pow(t, 1.6);
+        x += Math.sin(th) * SP; y += Math.cos(th) * SP;
+        verts[i].position.set(x, y, 0); verts[i].rotation.z = -th;
+        if (i === N - 1) { skull.position.set(x + Math.sin(th) * 1.5, y + Math.cos(th) * 1.5, 0); skull.rotation.z = -th; }
+      }
+      pelvis.position.set(0, -0.2, 0);
+      spine.position.set(-x * 0.5 + 0.4, -(y + 1.5) / 2 - 0.4, 0);
+    }
+
+    function resize() {
+      var w = canvas.clientWidth, h = canvas.clientHeight;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      // Fit the whole spine (about 15 units tall) into the canvas height
+      camera.position.z = 15.5 / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)));
+      camera.updateProjectionMatrix();
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    if (finePointer) {
+      window.addEventListener('pointermove', function (e) {
+        var hero = canvas.closest('.hero').getBoundingClientRect();
+        var ny = Math.min(1, Math.max(0, (e.clientY - hero.top) / hero.height));
+        slouchTarget = ny * 0.9;
+        yawTarget = (e.clientX / window.innerWidth - 0.5) * 1.4;
+      });
+    }
+
+    var visible = true, clock = 0, last = performance.now();
+    new IntersectionObserver(function (es) { visible = es[0].isIntersecting; }).observe(canvas);
+
+    function frame(now) {
+      var dt = Math.min(0.05, (now - last) / 1000); last = now; clock += dt;
+      if (!finePointer && !reduce) { slouchTarget = 0.45 + 0.4 * Math.sin(clock * 0.7); yawTarget = Math.sin(clock * 0.3) * 0.8; }
+      slouch += (slouchTarget - slouch) * Math.min(1, dt * 4);
+      yaw += (yawTarget - yaw) * Math.min(1, dt * 3);
+      if (visible) {
+        layout(slouch);
+        spine.rotation.y = yaw + (reduce ? 0.5 : 0.5 + Math.sin(clock * 0.4) * 0.15);
+        cranium.rotation.y += reduce ? 0 : dt * 0.4;
+        core.rotation.x += reduce ? 0 : dt * 0.9;
+        renderer.render(scene, camera);
+        setReadout(slouch);
+      }
+      requestAnimationFrame(frame);
+    }
+    layout(slouch); setReadout(slouch);
+    requestAnimationFrame(frame);
+  } catch (err) {
+    canvas.hidden = true;
+    document.getElementById('hint').hidden = true;
+  }
+  if (!finePointer) document.getElementById('hint').textContent = 'Live demo: the spine slouches and straightens on its own';
+
+  /* ---------- Name: grow until it fills the space next to the photo ---------- */
+  var heroEl = document.querySelector('.hero'), nameWrap = document.querySelector('.name-wrap'), nameEl = document.querySelector('.hero h1');
+  function fitName() {
+    heroEl.style.removeProperty('--name-fs');
+    var fs = parseFloat(getComputedStyle(nameEl).fontSize);
+    nameEl.style.width = 'max-content';
+    var natural = nameEl.offsetWidth; // offsetWidth ignores any scale from edit mode
+    nameEl.style.width = '';
+    var room = nameWrap.clientWidth;
+    if (natural > 0 && room > 0) {
+      var next = Math.round(Math.min(fs * room / natural, 256));
+      heroEl.style.setProperty('--name-fs', next + 'px');
+      // The spine canvas is sized from the name, so let it re-measure once the size settles
+      if (next !== fitName.last) { fitName.last = next; requestAnimationFrame(function () { window.dispatchEvent(new Event('resize')); }); }
+    }
+  }
+  fitName();
+  window.addEventListener('resize', fitName);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { fitName(); window.dispatchEvent(new Event('resize')); });
+
+  /* ---------- Skill drum ---------- */
+  // Each word gets an arc as wide as the word itself, so nothing overlaps; the radius follows from the total.
+  var drum = document.querySelector('.drum');
+  var drumItems = document.querySelectorAll('#drum span');
+  function placeDrum() {
+    var gap = 56, widths = [], total = 0;
+    drumItems.forEach(function (el) { var w = el.offsetWidth; widths.push(w); total += w + gap; });
+    var r = total / (2 * Math.PI), at = 0;
+    drumItems.forEach(function (el, i) {
+      var angle = (at + widths[i] / 2) / total * 360;
+      at += widths[i] + gap;
+      el.style.transform = 'translateX(-50%) rotateY(' + angle + 'deg) translateZ(' + r + 'px)';
+    });
+    // Tilt the ring slightly, then lift it so the front words sit in the middle of the strip
+    var tilt = 7, lift = r * Math.sin(tilt * Math.PI / 180);
+    drum.style.transform = 'translateY(' + (-lift) + 'px) translateZ(' + (-r) + 'px) rotateX(' + (-tilt) + 'deg)';
+  }
+  placeDrum();
+  window.addEventListener('resize', placeDrum);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(placeDrum);
+
+
+  /* ---------- Tilt: photo print and project cards ---------- */
+  function tilt(el, max, onMove) {
+    if (!finePointer || reduce) return;
+    el.addEventListener('pointermove', function (e) {
+      if (document.body.classList.contains('editing')) { el.style.transform = ''; return; }
+      var r = el.getBoundingClientRect();
+      var px = (e.clientX - r.left) / r.width - 0.5, py = (e.clientY - r.top) / r.height - 0.5;
+      el.style.transform = 'rotateY(' + (px * max) + 'deg) rotateX(' + (-py * max) + 'deg)';
+      if (onMove) onMove(px, py);
+    });
+    el.addEventListener('pointerleave', function () { el.style.transform = ''; });
+  }
+  var print = document.getElementById('print');
+  if (finePointer && !reduce) {
+    window.addEventListener('pointermove', function (e) {
+      if (document.body.classList.contains('editing')) { print.style.transform = ''; return; }
+      var r = print.getBoundingClientRect();
+      if (r.bottom < 0 || r.top > window.innerHeight) return;
+      var px = (e.clientX - (r.left + r.width / 2)) / window.innerWidth;
+      var py = (e.clientY - (r.top + r.height / 2)) / window.innerHeight;
+      print.style.transform = 'rotateY(' + (px * 40) + 'deg) rotateX(' + (-py * 30) + 'deg)';
+    });
+  } else {
+    print.style.transform = 'rotateY(-14deg) rotateX(6deg)';
+  }
+  document.querySelectorAll('.pcard').forEach(function (card) {
+    tilt(card, 16, function (px, py) {
+      card.style.setProperty('--gx', (px + 0.5) * 100 + '%');
+      card.style.setProperty('--gy', (py + 0.5) * 100 + '%');
+    });
+  });
+
+  /* ---------- Copy email ---------- */
+  document.getElementById('copy-email').addEventListener('click', function () {
+    var btn = this, text = document.getElementById('email').textContent;
+    function done(msg) { btn.textContent = msg; setTimeout(function () { btn.textContent = 'Copy email'; }, 1800); }
+    function fallback() {
+      var r = document.createRange(); r.selectNodeContents(document.getElementById('email'));
+      var s = window.getSelection(); s.removeAllRanges(); s.addRange(r); done('Selected, press ⌘C');
+    }
+    try { navigator.clipboard.writeText(text).then(function () { done('Copied'); }, fallback); } catch (e) { fallback(); }
+  });
+
+  /* ---------- Resume download ---------- */
+  // Runs last and is fully guarded so it can never stop the 3D effects above.
+  // Inside claude.ai the viewer is asked to save the file; elsewhere (e.g. GitHub Pages) the plain link opens the PDF.
+  try {
+    var resumeBtn = document.getElementById('resume-btn'), resumeMsg = document.getElementById('resume-msg');
+    if (window.claude && typeof window.claude.use === 'function') {
+      resumeBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        resumeMsg.hidden = true;
+        Promise.resolve().then(function () { return window.claude.use('downloads'); }).then(function (downloads) {
+          if (!downloads) throw { code: 'unavailable' };
+          return fetch('Arnav_Nehra_Resume.pdf').then(function (r) { return r.blob(); }).then(function (blob) {
+            return downloads.save({ filename: 'Arnav_Nehra_Resume.pdf', data: blob });
+          });
+        }).catch(function (err) {
+          if (err && err.code === 'declined') return;
+          resumeMsg.textContent = 'Downloads aren’t available in this view. Email me at arnavn40@gmail.com and I’ll send it.';
+          resumeMsg.hidden = false;
+        });
+      });
+    }
+  } catch (e) { /* keep the plain link */ }
+})();
+</script>
+
+<script>
+/* ---------- Saved edits + owner-only edit mode ----------
+   Edits live in edits.json next to the page: { text: {data-t id: html}, layout: {data-edit id: {x, y, s}} }.
+   The page loads and applies them; the owner's Save publishes only that file, so the page code never changes. */
+(function () {
+  var html = document.documentElement, body = document.body;
+  var layoutStyle = document.getElementById('edit-layout');
+  var items = Array.prototype.slice.call(document.querySelectorAll('[data-edit]'));
+  // Only the outermost text elements are edited/saved; nested ones ride along inside their parent
+  var texts = Array.prototype.slice.call(document.querySelectorAll('[data-t]')).filter(function (el) {
+    return !el.parentElement.closest('[data-t]');
+  });
+  var ORIG = {};
+  texts.forEach(function (el) { ORIG[el.dataset.t] = el.innerHTML; });
+  var saved = { text: {}, layout: {} };
+
+  var ALLOWED = { EM: 1, STRONG: 1, B: 1, I: 1, SPAN: 1, BR: 1 };
+  function clean(markup) {
+    var tpl = document.createElement('template'); tpl.innerHTML = String(markup);
+    (function walk(node) {
+      Array.prototype.slice.call(node.childNodes).forEach(function (c) {
+        if (c.nodeType === 1) {
+          if (!ALLOWED[c.tagName]) { c.replaceWith(document.createTextNode(c.textContent)); return; }
+          Array.prototype.slice.call(c.attributes).forEach(function (a) { if (a.name !== 'class') c.removeAttribute(a.name); });
+          walk(c);
+        } else if (c.nodeType !== 3) { c.remove(); }
+      });
+    })(tpl.content);
+    return tpl.innerHTML;
+  }
+  function num(v, d) { v = Number(v); return isFinite(v) ? v : d; }
+  function layoutCss(layout) {
+    var rules = '';
+    Object.keys(layout).forEach(function (id) {
+      if (!/^[a-z0-9-]+$/.test(id)) return;
+      var l = layout[id];
+      rules += '[data-edit="' + id + '"]{translate:' + num(l.x, 0) + 'px ' + num(l.y, 0) + 'px;scale:' + num(l.s, 1) + '}';
+    });
+    return rules ? '@media (min-width: 1101px){' + rules + '}' : '';
+  }
+  function syncEmailLinks() {
+    var em = (document.getElementById('email').textContent || '').trim();
+    var btn = document.getElementById('cta-btn');
+    if (em && btn) btn.href = 'mailto:' + em + '?subject=Internship%20opportunity';
+  }
+  function applySaved() {
+    layoutStyle.textContent = layoutCss(saved.layout);
+    texts.forEach(function (el) {
+      var id = el.dataset.t;
+      el.innerHTML = Object.prototype.hasOwnProperty.call(saved.text, id) ? clean(saved.text[id]) : ORIG[id];
+    });
+    syncEmailLinks();
+    window.dispatchEvent(new Event('resize')); // re-measure the skills ring and spine
+  }
+  function reveal() { html.classList.remove('edits-pending'); }
+
+  function useEdits(d) {
+    if (!d || typeof d !== 'object') return false;
+    saved.text = (d.text && typeof d.text === 'object') ? d.text : {};
+    saved.layout = (d.layout && typeof d.layout === 'object') ? d.layout : {};
+    applySaved();
+    return true;
+  }
+  // A copy of the edits baked into the page, used when edits.json can't be fetched
+  // (e.g. the file opened straight from disk, where browsers block reading neighbouring files)
+  function useBakedEdits() {
+    try { useEdits(JSON.parse(document.getElementById('edits-baked').textContent)); } catch (e) {}
+  }
+
+  fetch('edits.json', { cache: 'no-store' })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (d) { if (!useEdits(d)) useBakedEdits(); })
+    .catch(useBakedEdits)
+    .then(reveal);
+
+  /* ---- Edit mode (only for people who can edit this artifact on claude.ai) ---- */
+  var toggle = document.getElementById('edit-toggle'), bar = document.getElementById('edit-bar');
+  var framesEl = document.getElementById('edit-frames'), toast = document.getElementById('edit-toast');
+  var note = document.getElementById('edit-note');
+  var artifactApi = null, editing = false, work = {}, frames = [], raf = 0, busy = false;
+
+  if (window.claude && typeof window.claude.use === 'function') {
+    Promise.resolve()
+      .then(function () { return Promise.all([window.claude.use('artifact'), window.claude.use('user')]); })
+      .then(function (r) {
+        artifactApi = r[0];
+        if (!artifactApi || !r[1]) return false;
+        return r[1].canEdit();
+      })
+      .then(function (ok) { if (ok) toggle.hidden = false; })
+      .catch(function () {});
+  }
+
+  function say(msg) {
+    toast.textContent = msg; toast.hidden = false;
+    clearTimeout(say.t); say.t = setTimeout(function () { toast.hidden = true; }, 3200);
+  }
+  function cur(id) {
+    if (!work[id]) work[id] = { x: 0, y: 0, s: 1 };
+    return work[id];
+  }
+  function setInline(el, l) {
+    el.style.translate = l.x + 'px ' + l.y + 'px';
+    el.style.scale = String(l.s);
+  }
+  function clearInline() { items.forEach(function (el) { el.style.translate = ''; el.style.scale = ''; }); }
+  function blockClicks(e) {
+    if (!editing) return;
+    var t = e.target.closest('a, button');
+    if (t && !t.closest('.edit-ui')) e.preventDefault();
+  }
+  function plainPaste(e) {
+    if (!editing || !e.target.closest('[contenteditable]')) return;
+    e.preventDefault();
+    var t = (e.clipboardData || window.clipboardData).getData('text/plain');
+    document.execCommand('insertText', false, t);
+  }
+  function updateNote() {
+    note.textContent = window.innerWidth > 1100
+      ? 'Drag ✥ to move · drag ◢ to resize · click any text to retype it'
+      : 'Text edits work here. To move or resize things, widen the window: layout changes apply to the desktop layout.';
+  }
+
+  function buildFrames() {
+    items.forEach(function (el) {
+      var f = document.createElement('div'); f.className = 'edit-frame';
+      f.innerHTML = '<span class="tag"></span><span class="grip" title="Drag to move">✥</span><span class="size" title="Drag to resize">◢</span>';
+      f.querySelector('.tag').textContent = el.dataset.label || el.dataset.edit;
+      framesEl.appendChild(f);
+      frames.push({ el: el, f: f });
+      var id = el.dataset.edit;
+
+      f.querySelector('.grip').addEventListener('pointerdown', function (e) {
+        e.preventDefault();
+        var g = e.currentTarget; g.setPointerCapture(e.pointerId);
+        var l = cur(id), sx = e.clientX, sy = e.clientY, ox = l.x, oy = l.y;
+        function move(ev) { l.x = Math.round(ox + ev.clientX - sx); l.y = Math.round(oy + ev.clientY - sy); setInline(el, l); }
+        function up() { g.removeEventListener('pointermove', move); g.removeEventListener('pointerup', up); }
+        g.addEventListener('pointermove', move); g.addEventListener('pointerup', up);
+      });
+      f.querySelector('.size').addEventListener('pointerdown', function (e) {
+        e.preventDefault();
+        var h = e.currentTarget; h.setPointerCapture(e.pointerId);
+        var l = cur(id), sx = e.clientX, sy = e.clientY, os = l.s, rect = el.getBoundingClientRect();
+        var span = Math.max(80, rect.width + rect.height);
+        function move(ev) {
+          var d = (ev.clientX - sx + ev.clientY - sy) / span;
+          l.s = Math.round(Math.min(3, Math.max(0.3, os * (1 + d * 2))) * 100) / 100;
+          setInline(el, l);
+        }
+        function up() { h.removeEventListener('pointermove', move); h.removeEventListener('pointerup', up); }
+        h.addEventListener('pointermove', move); h.addEventListener('pointerup', up);
+      });
+    });
+    (function loop() {
+      frames.forEach(function (o) {
+        var r = o.el.getBoundingClientRect();
+        o.f.style.left = r.left + 'px'; o.f.style.top = r.top + 'px';
+        o.f.style.width = r.width + 'px'; o.f.style.height = r.height + 'px';
+      });
+      raf = requestAnimationFrame(loop);
+    })();
+  }
+
+  function enter() {
+    editing = true; body.classList.add('editing');
+    toggle.hidden = true; bar.hidden = false; updateNote();
+    work = JSON.parse(JSON.stringify(saved.layout));
+    items.forEach(function (el) { setInline(el, cur(el.dataset.edit)); });
+    texts.forEach(function (el) { el.setAttribute('contenteditable', 'true'); el.spellcheck = true; });
+    buildFrames();
+  }
+  function exit() {
+    editing = false; body.classList.remove('editing');
+    cancelAnimationFrame(raf); framesEl.innerHTML = ''; frames = [];
+    texts.forEach(function (el) { el.removeAttribute('contenteditable'); });
+    clearInline(); bar.hidden = true; toggle.hidden = false;
+  }
+
+  toggle.addEventListener('click', enter);
+  document.addEventListener('click', blockClicks, true);
+  document.addEventListener('paste', plainPaste);
+  window.addEventListener('resize', function () { if (editing) updateNote(); });
+
+  document.getElementById('edit-reset').addEventListener('click', function () {
+    work = {}; items.forEach(function (el) { setInline(el, cur(el.dataset.edit)); });
+    say('Layout reset. Save to keep it.');
+  });
+  document.getElementById('edit-cancel').addEventListener('click', function () {
+    exit(); applySaved(); say('Changes discarded.');
+  });
+  document.getElementById('edit-save').addEventListener('click', function () {
+    if (busy || !artifactApi) return;
+    var next = { v: 1, text: {}, layout: {} };
+    texts.forEach(function (el) {
+      var markup = clean(el.innerHTML).trim();
+      if (markup !== clean(ORIG[el.dataset.t]).trim()) next.text[el.dataset.t] = markup;
+    });
+    Object.keys(work).forEach(function (id) {
+      var l = work[id];
+      if (l.x || l.y || l.s !== 1) next.layout[id] = { x: l.x, y: l.y, s: l.s };
+    });
+    busy = true; say('Saving…');
+    artifactApi.publish({ 'edits.json': { content: JSON.stringify(next, null, 1), contentType: 'application/json' } })
+      .then(function () {
+        saved = next; exit(); applySaved(); say('Saved. Your changes are live.');
+      })
+      .catch(function (err) {
+        var c = err && err.code;
+        if (c === 'conflict') say('A newer version was published. Reloading it now; please redo your edit.');
+        else if (c === 'not_writer' || c === 'not_granted' || c === 'capability_disabled' || c === 'consent_required') say('Saving isn’t available in this view.');
+        else if (c === 'rate_limited') say('Saving too often. Wait a few seconds and try again.');
+        else if (c === 'too_large') say('That’s too much text to save at once.');
+        else say('Couldn’t save. Try again.');
+      })
+      .then(function () { busy = false; });
+  });
+})();
+</script>
